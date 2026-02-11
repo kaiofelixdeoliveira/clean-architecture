@@ -12,11 +12,11 @@ public class CreateCategoryUseCaseImpl implements CreateCategoryUseCase {
 	private final CategoryRepositoryService categoryRepositoryService;
 
 	@Override
-	public void execute(Category category) throws CategoryAlreadyExistException   {
+	public void execute(final Category category) throws CategoryAlreadyExistException {
 
-		if(categoryRepositoryService.doesCategoryNameExists(category.getName())) {
+		if (categoryRepositoryService.doesCategoryNameExists(category.getName())) {
 			throw new CategoryAlreadyExistException();
-		};
+		}
 
 		categoryRepositoryService.saveCategory(category);
 	}

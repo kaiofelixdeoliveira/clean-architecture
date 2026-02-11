@@ -22,7 +22,9 @@ import com.d4i.sample.movie.delivery.converters.CategoryRestConverter;
 import com.d4i.sample.movie.delivery.responses.NetflixResponse;
 import com.d4i.sample.movie.delivery.rest.CategoryRest;
 import com.d4i.sample.movie.shared.constants.CommonConstants;
+import com.d4i.sample.movie.shared.constants.ExceptionConstants;
 import com.d4i.sample.movie.shared.constants.RestConstants;
+import com.d4i.sample.movie.shared.exceptions.BadRequestException;
 import com.d4i.sample.movie.shared.exceptions.NetflixException;
 
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,7 @@ public class CategoryControllerImpl implements CategoryController {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public NetflixResponse<Collection<CategoryRest>> getCategories() throws NetflixException {
 		return new NetflixResponse<>(CommonConstants.SUCCESS, String.valueOf(HttpStatus.OK), CommonConstants.OK,
-				getAllCategoriesUseCase.execute().stream().map(category -> categoryRestConverter.mapToRest(category))
+				getAllCategoriesUseCase.execute().stream().map(categoryRestConverter::mapToRest)
 						.collect(Collectors.toList()));
 	}
 
@@ -51,14 +53,13 @@ public class CategoryControllerImpl implements CategoryController {
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public NetflixResponse<Boolean> createCategory(@Valid @RequestBody final CategoryRest category) throws NetflixException {
-		
+
 		try {
 			createCategoryUseCase.execute(categoryRestConverter.mapToEntity(category));
 		} catch (CategoryAlreadyExistException e) {
-			e.printStackTrace();
-			
+			throw new BadRequestException(ExceptionConstants.BAD_REQUEST_EXISTS_CATEGORY_MESSAGE);
 		}
-		
+
 		return new NetflixResponse<>(CommonConstants.SUCCESS, String.valueOf(HttpStatus.OK), CommonConstants.OK);
 	}
 
